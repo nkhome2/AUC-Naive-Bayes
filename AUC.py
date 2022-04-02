@@ -1,11 +1,9 @@
 #!/usr/bin/python3
 import sys
-import itertools
-import copy
 
+# read the input from files
 def get_input():
-    # for index checking
-    index_counter = 1
+    index_counter = 1       # for index checking
     probabilities = []
     pairs = []
     with open("AUC1.txt", 'r') as file:
@@ -17,7 +15,7 @@ def get_input():
                 break
             # if index is wrong
             if int(x[0]) != index_counter:
-                sys.exit(x[0] + ' is not a valid index ' + index_counter)
+                sys.exit(str(x[0]) + ' is not a valid index. should be ' + str(index_counter))
             probabilities.append(float(x[1].strip(' ,\n')))
             index_counter += 1
     index_counter = 1
@@ -38,6 +36,7 @@ def get_input():
     return pairs
 
 
+# returns the (FPR, TPR) point based on the input data and the threshold
 def get_ROC_point(threshold):
     TP = 0
     TN = 0
@@ -45,8 +44,11 @@ def get_ROC_point(threshold):
     FP = 0
     for p in pairs:
         # ignore those on the line of threshold
-        if p[0] > threshold:
+        # if the value is greater than the threshold
+        if p[0] >= threshold:
+            # and the actual value is P
             if 'P' in p[1]:
+                # this is a True Positive
                 TP += 1
             elif 'N' in p[1]:
                 FP += 1
@@ -61,6 +63,7 @@ def get_ROC_point(threshold):
     return point
 
 
+# returns the area given the points
 def calculate_AUC():
     area = 0
     for i in range(len(ROC_points)-1):
@@ -68,21 +71,16 @@ def calculate_AUC():
     return area
 
 
-
-
-
-# pairs have a format of (probability, actual_value)
+# store data in a list of pairs (0.33, 'N')
 pairs = get_input()
+# the points at the ROC curve
 ROC_points = []
 
 for pair in pairs:
-    # try to set the threshold to that value
+    # set the threshold to that probability value
     threshold = pair[0]
     ROC_points.append(get_ROC_point(threshold))
 ROC_points.sort()   # losing indexes at this step
-
-
-
 
 AUC = calculate_AUC()
 print("The AUC for the given data is " + str(AUC))
